@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default (English). Any system locale other than Persian resolves here. -->
+<resources>
+    <string name="app_name">Mcall</string>
+
+    <!-- Main -->
+    <string name="title_recordings">Recordings</string>
+    <string name="sub_recordings">Recordings</string>
+    <string name="sub_recordings_count">%1$d recordings</string>
+    <string name="notice_password_short">No encryption password set</string>
+    <string name="btn_set_password">Set password</string>
+    <string name="service_running">Recording service running</string>
+    <string name="service_stopped">Recording service stopped</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
+    <string name="empty_list">No recordings yet. Files appear here after your calls.</string>
+    <string name="set_password_first">Set an encryption password first.</string>
+
+    <!-- Actions -->
+    <string name="btn_play">Play</string>
+    <string name="btn_pause">Pause</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_details">Details</string>
+    <string name="btn_dial">Call back</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_back">Back</string>
+    <string name="dlg_delete_title">Delete recording?</string>
+    <string name="dlg_delete_msg">This file will be permanently deleted.</string>
+    <string name="protected_on">Protected by password</string>
+    <string name="protected_off">Not encrypted</string>
+
+    <!-- Settings -->
+    <string name="title_settings">Settings</string>
+    <string name="sec_auto">Automatic recording</string>
+    <string name="sw_auto">Record all calls automatically</string>
+    <string name="label_auto">Auto</string>
+    <string name="btn_test">5-second test</string>
+    <string name="sum_test">Record 5 seconds to check microphone and saving</string>
+    <string name="test_started">Test started — speak for 5 seconds.</string>
+
+    <string name="sec_encryption">Encryption</string>
+    <string name="sw_encrypt">Encrypt new recordings</string>
+    <string name="sum_encrypt">Applies to new files only; existing files keep their own password.</string>
+    <string name="sec_password">Encryption password</string>
+    <string name="sum_password_set">%1$d previous password kept for old files</string>
+    <string name="pw_policy_title">Password policy</string>
+    <string name="pw_policy_body">Files recorded from now on are protected with the current password. Files recorded earlier keep the password that was active when they were made, so changing the password never locks you out of older recordings inside Mcall.\n\nOutside the app, each file needs its own password. Keep the older ones if you still want to decrypt those files on a computer.</string>
+    <string name="pw_dialog_body">Enter a new password. Existing files keep their own password.</string>
+    <string name="hint_current_pw">Current password</string>
+    <string name="hint_new_pw">New password (min 12 characters)</string>
+    <string name="hint_repeat_pw">Repeat new password</string>
+    <string name="show_password">Show password</string>
+    <string name="err_pw_current_wrong">Current password is incorrect.</string>
+    <string name="err_pw_mismatch">Passwords do not match.</string>
+    <string name="err_pw_short">Password must be at least 12 characters.</string>
+    <string name="msg_pw_changed">Password changed. New recordings use it; old files still play here.</string>
+
+    <string name="sec_permissions">Access</string>
+    <string name="btn_grant_calls">Microphone &amp; calls</string>
+    <string name="btn_grant_files">Calls folder</string>
+    <string name="btn_grant_battery">Battery optimization</string>
+    <string name="v_granted">Granted</string>
+    <string name="v_not_granted">Not granted</string>
+    <string name="v_not_set">Not set</string>
+
+    <string name="sec_playback">Playback</string>
+    <string name="pref_default_speed">Default playback speed</string>
+    <string name="sec_about">About</string>
+    <string name="pref_version">Version</string>
+    <string name="coded_by">Coded by %1$s</string>
+
+    <string name="dir_in">Incoming</string>
+    <string name="dir_out">Outgoing</string>
+    <string name="dir_missed">Missed</string>
+    <string name="dir_selftest">Test</string>
+    <string name="dir_unknown">Call</string>
+
+    <string name="notif_standby">Ready to record calls</string>
+    <string name="notif_recording">Recording…</string>
+    <string name="notif_channel_playback">Audio playback</string>
+    <string name="notif_playing">Playing</string>
+
+    <string name="player_prev">Previous</string>
+    <string name="player_next">Next</string>
+    <string name="player_back10">Back 10 seconds</string>
+    <string name="player_fwd10">Forward 10 seconds</string>
+    <string name="player_position">%1$s / %2$s</string>
+    <string name="player_private_note">Decrypted audio stays in app-private storage and is wiped after playback.</string>
+</resources>

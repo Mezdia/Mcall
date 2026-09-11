@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/player_bar_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="12dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_card"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingEnd="6dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <FrameLayout
+        android:id="@+id/mini_open"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="1"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_thumb_media">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_wave"
+                    android:tint="@color/accent"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/mini_title"
+                    style="@style/Text.Mcall.RowTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/mini_time"
+                    style="@style/Text.Mcall.RowSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <ImageButton
+        android:id="@+id/mini_prev"
+        style="@style/Widget.Mcall.IconButton"
+        android:src="@drawable/ic_skip_prev"
+        android:contentDescription="@string/player_prev" />
+
+    <ImageButton
+        android:id="@+id/mini_play"
+        style="@style/Widget.Mcall.IconButton"
+        android:src="@drawable/ic_play"
+        android:tint="@color/accent"
+        android:contentDescription="@string/btn_play" />
+
+    <ImageButton
+        android:id="@+id/mini_next"
+        style="@style/Widget.Mcall.IconButton"
+        android:src="@drawable/ic_skip_next"
+        android:contentDescription="@string/player_next" />
+</LinearLayout>

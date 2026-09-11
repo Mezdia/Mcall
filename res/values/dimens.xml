@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One UI 8.5 (SESL8) metrics. Official PDF values + firmware SESL dimens. -->
+<resources>
+    <!-- Layout rhythm -->
+    <dimen name="screen_margin">24dp</dimen>
+    <dimen name="row_padding_v">14dp</dimen>
+    <dimen name="row_min_height">58.5dp</dimen>
+    <dimen name="divider_height">1px</dimen>
+    <dimen name="divider_inset">16dp</dimen>
+    <dimen name="touch_target">48dp</dimen>
+
+    <!-- App bar / headers -->
+    <dimen name="appbar_height">64dp</dimen>
+    <dimen name="appbar_title">21sp</dimen>
+
+    <!-- Type scale -->
+    <dimen name="text_list_title">17sp</dimen>
+    <dimen name="text_summary">13sp</dimen>
+    <dimen name="text_subheader">13sp</dimen>
+    <dimen name="text_body">14sp</dimen>
+    <dimen name="text_button">15sp</dimen>
+    <dimen name="text_dialog_title">17sp</dimen>
+    <dimen name="text_dialog_body">14sp</dimen>
+    <dimen name="text_dialog_button">18sp</dimen>
+    <dimen name="text_meta">13sp</dimen>
+
+    <!-- Radii -->
+    <dimen name="radius_card">26dp</dimen>
+    <dimen name="radius_dialog">26dp</dimen>
+    <dimen name="radius_button">18dp</dimen>
+    <dimen name="radius_thumb">12dp</dimen>
+
+    <!-- Controls -->
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="switch_width">35dp</dimen>
+    <dimen name="switch_height">20dp</dimen>
+    <dimen name="switch_thumb">26dp</dimen>
+    <dimen name="pref_icon">36dp</dimen>
+    <dimen name="list_thumb">44dp</dimen>
+
+    <!-- Dialog -->
+    <dimen name="dialog_padding">24dp</dimen>
+
+    <!-- Player -->
+</resources>

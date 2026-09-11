@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One UI 8.5 (SESL8) dark palette. Values mirrored from Samsung firmware SESL resources. -->
+<resources>
+    <color name="window_bg">#FF17171A</color>
+    <color name="surface_card">#FF010102</color>
+    <color name="surface_raised">#FF3A3A3D</color>
+    <color name="surface_pressed">#FF2D2D30</color>
+
+    <color name="accent">#FF387AFF</color>
+    <color name="accent_pressed">#FF598FFF</color>
+    <color name="on_accent">#FFFAFAFF</color>
+
+    <color name="text_primary">#FFFAFAFF</color>
+    <color name="text_secondary">#FFEAEAEB</color>
+    <color name="text_tertiary">#FFA3A3A7</color>
+    <color name="text_disabled">#FF69696C</color>
+    <color name="text_on_card_secondary">#FFB7B7BB</color>
+
+    <color name="divider">#FF3A3A3D</color>
+    <color name="btn_neutral_bg">#FF2D2D30</color>
+    <color name="btn_neutral_text">#FFFAFAFF</color>
+    <color name="switch_track_off">#FF636368</color>
+    <color name="switch_thumb_stroke">#FF8C8C8C</color>
+    <color name="thumb_white">#FFFFFFFF</color>
+    <color name="ripple">#33FFFFFF</color>
+    <color name="scrim">#0D000000</color>
+
+    <color name="fn_green">#FF58DB9C</color>
+    <color name="fn_orange">#FFFC864C</color>
+</resources>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- One UI 8.5 light theme. Edge-to-edge, flat, SamsungOne via platform default. -->
+    <style name="Theme.Mcall" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_bg</item>
+        <item name="android:colorBackground">@color/window_bg</item>
+        <item name="android:colorBackgroundFloating">@color/surface_raised</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorTertiary">@color/text_tertiary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorControlActivated">@color/accent</item>
+        <item name="android:colorControlNormal">@color/text_tertiary</item>
+        <item name="android:colorControlHighlight">@color/ripple</item>
+        <item name="android:colorEdgeEffect">@color/accent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:fontFamily">@font/vazirmatn_regular</item>
+        <item name="android:listDivider">@drawable/divider_inset</item>
+    </style>
+
+    <!-- Translucent host for One UI bottom sheets / dialogs (26dp radius, blurred scrim). -->
+    <style name="Theme.Mcall.Dialog" parent="Theme.Mcall">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.32</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+
+    <!-- Base style namespaces (explicit parents stop the implicit dotted chain). -->
+    <style name="Text.Mcall" parent="@android:style/TextAppearance" />
+    <style name="Widget.Mcall" parent="@android:style/Widget" />
+    <style name="Widget.Mcall.Button" parent="Widget.Mcall" />
+
+    <!-- One UI 8.5 contained button: 18dp radius, 48dp high, 15sp sentence case. -->
+    <style name="Widget.Mcall.Button.Primary">
+        <item name="android:background">@drawable/bg_button_primary</item>
+        <item name="android:textColor">@color/on_accent</item>
+        <item name="android:textSize">@dimen/text_button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/vazirmatn_medium</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="Widget.Mcall.Button.Neutral">
+        <item name="android:background">@drawable/bg_button_neutral</item>
+        <item name="android:textColor">@color/btn_neutral_text</item>
+        <item name="android:textSize">@dimen/text_button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/vazirmatn_medium</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- 48dp borderless icon button (app bar / player transport). -->
+    <style name="Widget.Mcall.IconButton">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:tint">@color/text_secondary</item>
+        <item name="android:layout_width">@dimen/touch_target</item>
+        <item name="android:layout_height">@dimen/touch_target</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!-- One UI switch: 35dp pill track, white circular thumb. -->
+    <style name="Widget.Mcall.Switch" parent="@android:style/Widget.Material.CompoundButton.Switch">
+        <item name="android:track">@drawable/switch_track</item>
+        <item name="android:thumb">@drawable/switch_thumb</item>
+        <item name="android:showText">false</item>
+        <item name="android:minWidth">@dimen/switch_width</item>
+        <item name="android:minHeight">32dp</item>
+    </style>
+
+    <!-- Playback-speed chip: 36dp pill, 13sp. -->
+    <style name="Widget.Mcall.Chip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:background">@drawable/bg_chip_normal</item>
+        <item name="android:textColor">@color/btn_neutral_text</item>
+        <item name="android:textSize">@dimen/text_summary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/vazirmatn_medium</item>
+        <item name="android:minWidth">56dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Grouped-list row text -->
+    <style name="Text.Mcall.RowTitle">
+        <item name="android:textSize">@dimen/text_list_title</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">@font/vazirmatn_regular</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Text.Mcall.RowSummary">
+        <item name="android:textSize">@dimen/text_summary</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:fontFamily">@font/vazirmatn_regular</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Text.Mcall.Subheader">
+        <item name="android:textSize">@dimen/text_subheader</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:fontFamily">@font/vazirmatn_medium</item>
+        <item name="android:paddingStart">@dimen/screen_margin</item>
+        <item name="android:paddingEnd">@dimen/screen_margin</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <!-- One UI dialog flat text button: 18sp accent, right aligned. -->
+    <style name="Widget.Mcall.DialogButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">@dimen/text_dialog_button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/vazirmatn_medium</item>
+        <item name="android:minWidth">72dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- One UI menu item: 44dp full-width flat row, 16sp. -->
+    <style name="Widget.Mcall.MenuItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="android:paddingStart">@dimen/dialog_padding</item>
+        <item name="android:paddingEnd">@dimen/dialog_padding</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+</resources>

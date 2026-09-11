@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Persian. Used when the system language is Persian (any region). -->
+<resources>
+    <string name="app_name">Mcall</string>
+
+    <string name="title_recordings">ضبط‌ها</string>
+    <string name="sub_recordings">ضبط‌ها</string>
+    <string name="sub_recordings_count">%1$d ضبط</string>
+    <string name="notice_password_short">رمز رمزنگاری تنظیم نشده است</string>
+    <string name="btn_set_password">تنظیم رمز</string>
+    <string name="service_running">سرویس ضبط در حال اجراست</string>
+    <string name="service_stopped">سرویس ضبط متوقف است</string>
+    <string name="btn_start">شروع</string>
+    <string name="btn_stop">توقف</string>
+    <string name="empty_list">هنوز ضبطی نیست. فایل‌ها پس از تماس‌ها اینجا می‌آیند.</string>
+    <string name="set_password_first">ابتدا رمز رمزنگاری را تنظیم کنید.</string>
+
+    <string name="btn_play">پخش</string>
+    <string name="btn_pause">مکث</string>
+    <string name="btn_delete">حذف</string>
+    <string name="btn_details">جزئیات</string>
+    <string name="btn_dial">تماس مجدد</string>
+    <string name="btn_cancel">انصراف</string>
+    <string name="btn_save">ذخیره</string>
+    <string name="btn_ok">باشه</string>
+    <string name="btn_back">بازگشت</string>
+    <string name="dlg_delete_title">حذف ضبط؟</string>
+    <string name="dlg_delete_msg">این فایل برای همیشه حذف می‌شود.</string>
+    <string name="protected_on">محافظت‌شده با رمز</string>
+    <string name="protected_off">بدون رمزنگاری</string>
+
+    <string name="title_settings">تنظیمات</string>
+    <string name="sec_auto">ضبط خودکار</string>
+    <string name="sw_auto">ضبط خودکار همه تماس‌ها</string>
+    <string name="label_auto">خودکار</string>
+    <string name="btn_test">تست ۵ ثانیه‌ای</string>
+    <string name="sum_test">ضبط ۵ ثانیه برای بررسی میکروفون و ذخیره‌سازی</string>
+    <string name="test_started">تست شروع شد؛ ۵ ثانیه صحبت کنید.</string>
+
+    <string name="sec_encryption">رمزنگاری</string>
+    <string name="sw_encrypt">رمزنگاری ضبط‌های جدید</string>
+    <string name="sum_encrypt">فقط روی فایل‌های جدید اعمال می‌شود؛ فایل‌های قبلی رمز خودشان را نگه می‌دارند.</string>
+    <string name="sec_password">رمز رمزنگاری</string>
+    <string name="sum_password_set">%1$d رمز قبلی برای فایل‌های قدیمی نگه داشته شده</string>
+    <string name="pw_policy_title">سیاست رمز</string>
+    <string name="pw_policy_body">فایل‌هایی که از این به بعد ضبط می‌شوند با رمز فعلی محافظت می‌شوند. فایل‌های قبلی همان رمزی را دارند که موقع ضبط فعال بود، پس عوض کردن رمز، دسترسی شما به ضبط‌های قدیمی را داخل Mcall نمی‌بندد.
+
+خارج از برنامه هر فایل به رمز خودش نیاز دارد. اگر می‌خواهید فایل‌های قدیمی را روی رایانه رمزگشایی کنید، رمزهای قبلی را نگه دارید.</string>
+    <string name="pw_dialog_body">رمز جدید را وارد کنید. فایل‌های قبلی رمز خودشان را نگه می‌دارند.</string>
+    <string name="hint_current_pw">رمز فعلی</string>
+    <string name="hint_new_pw">رمز جدید (حداقل ۱۲ کاراکتر)</string>
+    <string name="hint_repeat_pw">تکرار رمز جدید</string>
+    <string name="show_password">نمایش رمز</string>
+    <string name="err_pw_current_wrong">رمز فعلی درست نیست.</string>
+    <string name="err_pw_mismatch">رمزها یکسان نیستند.</string>
+    <string name="err_pw_short">رمز حداقل ۱۲ کاراکتر باشد.</string>
+    <string name="msg_pw_changed">رمز تغییر کرد. ضبط‌های جدید از آن استفاده می‌کنند؛ فایل‌های قدیمی همچنان اینجا پخش می‌شوند.</string>
+
+    <string name="sec_permissions">دسترسی‌ها</string>
+    <string name="btn_grant_calls">میکروفون و تماس</string>
+    <string name="btn_grant_files">پوشه Calls</string>
+    <string name="btn_grant_battery">بهینه‌سازی باتری</string>
+    <string name="v_granted">داده شده</string>
+    <string name="v_not_granted">داده نشده</string>
+    <string name="v_not_set">تنظیم نشده</string>
+
+    <string name="sec_playback">پخش</string>
+    <string name="pref_default_speed">سرعت پیش‌فرض پخش</string>
+    <string name="sec_about">درباره</string>
+    <string name="pref_version">نسخه</string>
+    <string name="coded_by">کدنویسی شده توسط %1$s</string>
+
+    <string name="dir_in">ورودی</string>
+    <string name="dir_out">خروجی</string>
+    <string name="dir_missed">بی‌پاسخ</string>
+    <string name="dir_selftest">تست</string>
+    <string name="dir_unknown">تماس</string>
+
+    <string name="notif_standby">آماده ضبط تماس</string>
+    <string name="notif_recording">در حال ضبط…</string>
+    <string name="notif_channel_playback">پخش صدا</string>
+    <string name="notif_playing">در حال پخش</string>
+
+    <string name="player_prev">قبلی</string>
+    <string name="player_next">بعدی</string>
+    <string name="player_back10">۱۰ ثانیه عقب</string>
+    <string name="player_fwd10">۱۰ ثانیه جلو</string>
+    <string name="player_position">%1$s / %2$s</string>
+    <string name="player_private_note">صدای رمزگشایی‌شده در حافظه خصوصی برنامه می‌ماند و پس از پخش پاک می‌شود.</string>
+</resources>
