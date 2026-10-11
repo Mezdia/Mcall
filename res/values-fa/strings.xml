@@ -10,8 +10,9 @@
     <string name="btn_set_password">تنظیم رمز</string>
     <string name="service_running">سرویس ضبط در حال اجراست</string>
     <string name="service_stopped">سرویس ضبط متوقف است</string>
-    <string name="btn_start">شروع</string>
-    <string name="btn_stop">توقف</string>
+    <string name="service_starting">در حال راه‌اندازی سرویس…</string>
+    <string name="btn_start">شروع ضبط</string>
+    <string name="btn_stop">توقف ضبط</string>
     <string name="empty_list">هنوز ضبطی نیست. فایل‌ها پس از تماس‌ها اینجا می‌آیند.</string>
     <string name="set_password_first">ابتدا رمز رمزنگاری را تنظیم کنید.</string>
 
@@ -32,7 +33,6 @@
     <string name="title_settings">تنظیمات</string>
     <string name="sec_auto">ضبط خودکار</string>
     <string name="sw_auto">ضبط خودکار همه تماس‌ها</string>
-    <string name="label_auto">خودکار</string>
     <string name="btn_test">تست ۵ ثانیه‌ای</string>
     <string name="sum_test">ضبط ۵ ثانیه برای بررسی میکروفون و ذخیره‌سازی</string>
     <string name="test_started">تست شروع شد؛ ۵ ثانیه صحبت کنید.</string>

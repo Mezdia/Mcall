@@ -27,4 +27,7 @@
 
     <color name="fn_green">#FF58DB9C</color>
     <color name="fn_orange">#FFFC864C</color>
+    <color name="danger">#FFB4352E</color>
+    <color name="danger_pressed">#FFD93E36</color>
+    <color name="on_danger">#FFFAFAFF</color>
 </resources>

@@ -74,8 +74,9 @@ class CallRecordService : Service() {
             .setSmallIcon(R.drawable.ic_mic)
             .setOngoing(true)
             .build()
-        val types = ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        // Recording from the mic is all this service does. Declaring phoneCall instead
+        // is rejected unless the app holds the dialer role.
+        val types = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
         try {
             startForeground(NOTIF_ID, n, types)
         } catch (e: SecurityException) {

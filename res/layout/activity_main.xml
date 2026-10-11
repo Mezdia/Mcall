@@ -6,7 +6,7 @@
     android:background="@color/window_bg"
     android:orientation="vertical">
 
-    <!-- One UI collapsed app bar: 64dp, 21sp start title, quick auto-record switch, settings. -->
+    <!-- One UI collapsed app bar: 64dp, 21sp start title, settings entry. -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -27,23 +27,6 @@
             android:textColor="@color/text_primary"
             android:textSize="@dimen/appbar_title"
             android:fontFamily="@font/vazirmatn_medium" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/label_auto"
-            android:textColor="@color/text_tertiary"
-            android:textSize="@dimen/text_summary"
-            android:fontFamily="@font/vazirmatn_regular" />
-
-        <Switch
-            android:id="@+id/sw_auto"
-            style="@style/Widget.Mcall.Switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="@string/sw_auto" />
 
         <ImageButton
             android:id="@+id/btn_settings"

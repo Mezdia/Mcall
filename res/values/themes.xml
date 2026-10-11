@@ -87,6 +87,12 @@
         <item name="android:stateListAnimator">@null</item>
     </style>
 
+    <!-- Destructive variant: red fill, used while recording is live. -->
+    <style name="Widget.Mcall.Button.Danger" parent="Widget.Mcall.Button.Primary">
+        <item name="android:background">@drawable/bg_button_danger</item>
+        <item name="android:textColor">@color/on_danger</item>
+    </style>
+
     <!-- 48dp borderless icon button (app bar / player transport). -->
     <style name="Widget.Mcall.IconButton">
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>

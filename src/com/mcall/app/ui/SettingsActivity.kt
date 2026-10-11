@@ -24,6 +24,7 @@ import com.mcall.app.crypto.PasswordStore
 import com.mcall.app.crypto.VaultCrypto
 import com.mcall.app.data.AppSettings
 import com.mcall.app.service.CallRecordService
+import com.mcall.app.service.RecordingController
 import com.mcall.app.ui.widget.SettingRow
 import com.mcall.app.util.Insets
 import com.mcall.app.util.OneUiDialog
@@ -90,9 +91,10 @@ class SettingsActivity : Activity() {
             setIcon(R.drawable.ic_mic)
             setTitle(getString(R.string.sw_auto))
             setWidget(SettingRow.Widget.SWITCH)
-            switch.isChecked = AppSettings.autoRecord(this@SettingsActivity)
+            switch.isChecked = RecordingController.isEnabled(this@SettingsActivity)
             switch.setOnCheckedChangeListener { _, on ->
-                AppSettings.setAutoRecord(this@SettingsActivity, on)
+                RecordingController.set(this@SettingsActivity, on)
+                rowAuto.setSummary(serviceStateLabel())
             }
         }
         addRow {
@@ -183,7 +185,8 @@ class SettingsActivity : Activity() {
             if (secrets == null) getString(R.string.v_not_set)
             else getString(R.string.sum_password_set, secrets.history.size)
         )
-        rowAuto.switch.isChecked = AppSettings.autoRecord(this)
+        rowAuto.switch.isChecked = RecordingController.isEnabled(this)
+        rowAuto.setSummary(serviceStateLabel())
         rowEncrypt.switch.isChecked = AppSettings.encryptNew(this)
         rowEncrypt.setSummary(getString(R.string.sum_encrypt))
 
@@ -195,6 +198,15 @@ class SettingsActivity : Activity() {
         rowPermBattery.setSummary(statusLabel(isBatteryUnrestricted()))
         rowSpeed.setSummary(speedLabel(AppSettings.defaultSpeed(this)))
     }
+
+    /** Same wording the main screen shows, so the two screens cannot disagree. */
+    private fun serviceStateLabel(): String = getString(
+        when {
+            !RecordingController.isEnabled(this) -> R.string.service_stopped
+            CallRecordService.running -> R.string.service_running
+            else -> R.string.service_starting
+        }
+    )
 
     private fun statusLabel(granted: Boolean) =
         getString(if (granted) R.string.v_granted else R.string.v_not_granted)

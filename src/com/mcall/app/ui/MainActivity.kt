@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,7 +20,6 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import com.mcall.app.R
@@ -30,6 +30,7 @@ import com.mcall.app.data.RecordingRepository
 import com.mcall.app.player.PlaybackEngine
 import com.mcall.app.player.PlaybackService
 import com.mcall.app.service.CallRecordService
+import com.mcall.app.service.RecordingController
 import com.mcall.app.util.Format
 import com.mcall.app.util.Insets
 import com.mcall.app.util.title
@@ -48,7 +49,6 @@ class MainActivity : Activity() {
 
     private lateinit var listSubheader: TextView
     private lateinit var controlDot: ImageView
-    private lateinit var swAuto: Switch
     private lateinit var serviceState: TextView
     private lateinit var btnToggle: Button
     private lateinit var noticeCard: View
@@ -89,7 +89,6 @@ class MainActivity : Activity() {
 
         listSubheader = findViewById(R.id.list_subheader)
         controlDot = findViewById(R.id.control_dot)
-        swAuto = findViewById(R.id.sw_auto)
         serviceState = findViewById(R.id.service_state)
         btnToggle = findViewById(R.id.btn_toggle_service)
         noticeCard = findViewById(R.id.notice_card)
@@ -110,10 +109,7 @@ class MainActivity : Activity() {
         findViewById<ImageButton>(R.id.btn_settings).setOnClickListener { openSettings() }
         findViewById<Button>(R.id.btn_set_password).setOnClickListener { openSettings() }
 
-        swAuto.isChecked = AppSettings.autoRecord(this)
-        swAuto.setOnCheckedChangeListener { _, on -> AppSettings.setAutoRecord(this, on) }
-
-        btnToggle.setOnClickListener { toggleRecordService() }
+        btnToggle.setOnClickListener { toggleRecording() }
 
         playerBar.findViewById<View>(R.id.mini_open).setOnClickListener { openPlayer() }
         miniPlay.setOnClickListener { playback?.engine?.toggleCurrent() }
@@ -167,29 +163,33 @@ class MainActivity : Activity() {
         }
     }
 
+    /** The stored preference drives the button; the live service drives the status dot. */
     private fun syncControlCard() {
-        val running = CallRecordService.running
-        serviceState.text = getString(
-            if (running) R.string.service_running else R.string.service_stopped
+        val wanted = RecordingController.isEnabled(this)
+        val live = CallRecordService.running
+        btnToggle.text = getString(if (wanted) R.string.btn_stop else R.string.btn_start)
+        btnToggle.setBackgroundResource(
+            if (wanted) R.drawable.bg_button_danger else R.drawable.bg_button_primary
         )
-        controlDot.setColorFilter(getColor(if (running) R.color.fn_green else R.color.text_disabled))
-        btnToggle.text = getString(if (running) R.string.btn_stop else R.string.btn_start)
+        // The oval is the view's background, so it needs backgroundTint, not a colour filter.
+        controlDot.backgroundTintList = ColorStateList.valueOf(
+            getColor(if (live) R.color.fn_green else R.color.text_disabled)
+        )
+        serviceState.text = getString(
+            when {
+                !wanted -> R.string.service_stopped
+                live -> R.string.service_running
+                else -> R.string.service_starting
+            }
+        )
     }
 
-    private fun toggleRecordService() {
-        if (CallRecordService.running) {
-            stopService(Intent(this, CallRecordService::class.java))
-        } else {
-            if (AppSettings.encryptNew(this) && !requirePassword()) return
-            startRecordService(null)
-        }
-        refresh()
-    }
-
-    private fun startRecordService(action: String?) {
-        val i = Intent(this, CallRecordService::class.java)
-        if (action != null) i.action = action
-        if (Build.VERSION.SDK_INT >= 26) startForegroundService(i) else startService(i)
+    private fun toggleRecording() {
+        val enable = !RecordingController.isEnabled(this)
+        if (enable && AppSettings.encryptNew(this) && !requirePassword()) return
+        RecordingController.set(this, enable)
+        syncControlCard()
+        btnToggle.postDelayed({ syncControlCard() }, 700)
     }
 
     // ---------- playback ----------

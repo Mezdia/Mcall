@@ -34,4 +34,7 @@
     <color name="fn_orange">#FFE65B17</color>
 
     <!-- Icon art -->
+    <color name="danger">#FFD93E36</color>
+    <color name="danger_pressed">#FFB4352E</color>
+    <color name="on_danger">#FFFAFAFF</color>
 </resources>
