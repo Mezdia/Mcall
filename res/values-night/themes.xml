@@ -23,6 +23,18 @@
         <item name="android:listDivider">@drawable/divider_inset</item>
     </style>
 
+    <style name="Theme.Mcall.InputDialog" parent="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.45</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+        <item name="android:fontFamily">@font/vazirmatn_regular</item>
+    </style>
+
     <style name="Theme.Mcall.Dialog" parent="Theme.Mcall">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>

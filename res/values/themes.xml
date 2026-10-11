@@ -39,6 +39,21 @@
     <style name="Widget.Mcall" parent="@android:style/Widget" />
     <style name="Widget.Mcall.Button" parent="Widget.Mcall" />
 
+    <!-- Dialog that contains text fields. Must NOT be translucent: Android ignores
+         SOFT_INPUT_ADJUST_RESIZE on translucent windows, which let the keyboard cover
+         the password inputs. -->
+    <style name="Theme.Mcall.InputDialog" parent="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.32</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+        <item name="android:fontFamily">@font/vazirmatn_regular</item>
+    </style>
+
     <!-- One UI 8.5 contained button: 18dp radius, 48dp high, 15sp sentence case. -->
     <style name="Widget.Mcall.Button.Primary">
         <item name="android:background">@drawable/bg_button_primary</item>

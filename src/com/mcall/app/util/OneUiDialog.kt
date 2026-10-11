@@ -13,9 +13,10 @@ object OneUiDialog {
         ctx: Context,
         layoutRes: Int,
         widthDp: Int = 320,
+        theme: Int = R.style.Theme_Mcall_Dialog,
         configure: (Dialog) -> Unit
     ): Dialog {
-        val dialog = Dialog(ctx, R.style.Theme_Mcall_Dialog)
+        val dialog = Dialog(ctx, theme)
         dialog.setContentView(layoutRes)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()

@@ -288,7 +288,11 @@ class SettingsActivity : Activity() {
 
     private fun showPasswordDialog() {
         val secrets = runCatching { PasswordStore(this).load() }.getOrDefault(null)
-        OneUiDialog.show(this, R.layout.dialog_password) { d ->
+        OneUiDialog.show(
+            this,
+            R.layout.dialog_password,
+            theme = R.style.Theme_Mcall_InputDialog
+        ) { d ->
             val cur = d.findViewById<EditText>(R.id.pw_current)
             val neu = d.findViewById<EditText>(R.id.pw_new)
             val conf = d.findViewById<EditText>(R.id.pw_confirm)
