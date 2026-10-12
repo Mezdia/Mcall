@@ -64,8 +64,8 @@ settings switch can never disagree.
 ## Companion toolkit
 
 Recordings are meant to be recoverable outside the phone. A Python CLI for decrypting, encrypting,
-pulling over `adb` and on-device watching lives in the sibling repository
-[`calls-decrypt`](../calls-decrypt) — same `CVAULT1`/`CVAULT2` format, verified byte-compatible.
+pulling over `adb` and on-device watching lives in a separate `calls-decrypt` repository — same
+`CVAULT1`/`CVAULT2` format, verified byte-compatible with this app.
 
 ```bash
 python -m mcall.cli decrypt file.m4a.enc --passwords "new-pass,old-pass"
