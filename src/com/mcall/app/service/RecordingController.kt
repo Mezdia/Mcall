@@ -2,26 +2,24 @@ package com.mcall.app.service
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.mcall.app.data.AppSettings
 
 /**
- * The single entry point for turning recording on and off.
+ * The single entry point for arming and disarming recording.
  *
- * Both the main screen button and the settings switch go through here, so the
- * stored preference and the live service can never disagree about the state.
+ * Arming stores a preference only — it deliberately does not start anything. The recorder
+ * is brought up per call by [PhoneStateReceiver], so an armed app costs no battery and
+ * shows no notification until a call is actually happening.
  */
 object RecordingController {
 
     fun isEnabled(ctx: Context): Boolean = AppSettings.autoRecord(ctx)
 
+    fun isRecording(ctx: Context): Boolean =
+        isEnabled(ctx) && CallRecordService.recordingNow
+
     fun set(ctx: Context, enabled: Boolean) {
         AppSettings.setAutoRecord(ctx, enabled)
-        val intent = Intent(ctx, CallRecordService::class.java)
-        if (enabled) {
-            if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(intent) else ctx.startService(intent)
-        } else {
-            ctx.stopService(intent)
-        }
+        if (!enabled) ctx.stopService(Intent(ctx, CallRecordService::class.java))
     }
 }

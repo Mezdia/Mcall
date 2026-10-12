@@ -9,9 +9,9 @@
     <string name="sub_recordings_count">%1$d recordings</string>
     <string name="notice_password_short">No encryption password set</string>
     <string name="btn_set_password">Set password</string>
-    <string name="service_running">Recording service running</string>
-    <string name="service_stopped">Recording service stopped</string>
-    <string name="service_starting">Starting service…</string>
+    <string name="state_off">Not armed — recording is off</string>
+    <string name="state_armed">Armed — runs only during calls</string>
+    <string name="state_recording">Recording this call</string>
     <string name="btn_start">Start recording</string>
     <string name="btn_stop">Stop recording</string>
     <string name="empty_list">No recordings yet. Files appear here after your calls.</string>
@@ -77,7 +77,6 @@
     <string name="dir_selftest">Test</string>
     <string name="dir_unknown">Call</string>
 
-    <string name="notif_standby">Ready to record calls</string>
     <string name="notif_recording">Recording…</string>
     <string name="notif_channel_playback">Audio playback</string>
     <string name="notif_playing">Playing</string>

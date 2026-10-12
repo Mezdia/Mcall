@@ -29,7 +29,6 @@ import com.mcall.app.data.Recording
 import com.mcall.app.data.RecordingRepository
 import com.mcall.app.player.PlaybackEngine
 import com.mcall.app.player.PlaybackService
-import com.mcall.app.service.CallRecordService
 import com.mcall.app.service.RecordingController
 import com.mcall.app.util.Format
 import com.mcall.app.util.Insets
@@ -74,6 +73,14 @@ class MainActivity : Activity() {
         }
         override fun onServiceDisconnected(name: ComponentName?) {
             playback = null
+        }
+    }
+
+    private val ui = android.os.Handler(android.os.Looper.getMainLooper())
+    private val statusTicker = object : Runnable {
+        override fun run() {
+            syncControlCard()
+            ui.postDelayed(this, 1000)
         }
     }
 
@@ -135,6 +142,12 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         refresh()
+        ui.postDelayed(statusTicker, 1000)
+    }
+
+    override fun onPause() {
+        ui.removeCallbacks(statusTicker)
+        super.onPause()
     }
 
     override fun onDestroy() {
@@ -163,10 +176,10 @@ class MainActivity : Activity() {
         }
     }
 
-    /** The stored preference drives the button; the live service drives the status dot. */
+    /** Arming drives the button; an actually running recording drives the dot and text. */
     private fun syncControlCard() {
         val wanted = RecordingController.isEnabled(this)
-        val live = CallRecordService.running
+        val live = RecordingController.isRecording(this)
         btnToggle.text = getString(if (wanted) R.string.btn_stop else R.string.btn_start)
         btnToggle.setBackgroundResource(
             if (wanted) R.drawable.bg_button_danger else R.drawable.bg_button_primary
@@ -177,9 +190,9 @@ class MainActivity : Activity() {
         )
         serviceState.text = getString(
             when {
-                !wanted -> R.string.service_stopped
-                live -> R.string.service_running
-                else -> R.string.service_starting
+                !wanted -> R.string.state_off
+                live -> R.string.state_recording
+                else -> R.string.state_armed
             }
         )
     }
@@ -189,7 +202,6 @@ class MainActivity : Activity() {
         if (enable && AppSettings.encryptNew(this) && !requirePassword()) return
         RecordingController.set(this, enable)
         syncControlCard()
-        btnToggle.postDelayed({ syncControlCard() }, 700)
     }
 
     // ---------- playback ----------

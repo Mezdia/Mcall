@@ -8,9 +8,9 @@
     <string name="sub_recordings_count">%1$d ضبط</string>
     <string name="notice_password_short">رمز رمزنگاری تنظیم نشده است</string>
     <string name="btn_set_password">تنظیم رمز</string>
-    <string name="service_running">سرویس ضبط در حال اجراست</string>
-    <string name="service_stopped">سرویس ضبط متوقف است</string>
-    <string name="service_starting">در حال راه‌اندازی سرویس…</string>
+    <string name="state_off">غیرفعال — ضبط خاموش است</string>
+    <string name="state_armed">آماده — فقط هنگام تماس اجرا می‌شود</string>
+    <string name="state_recording">در حال ضبط این تماس</string>
     <string name="btn_start">شروع ضبط</string>
     <string name="btn_stop">توقف ضبط</string>
     <string name="empty_list">هنوز ضبطی نیست. فایل‌ها پس از تماس‌ها اینجا می‌آیند.</string>
@@ -76,7 +76,6 @@
     <string name="dir_selftest">تست</string>
     <string name="dir_unknown">تماس</string>
 
-    <string name="notif_standby">آماده ضبط تماس</string>
     <string name="notif_recording">در حال ضبط…</string>
     <string name="notif_channel_playback">پخش صدا</string>
     <string name="notif_playing">در حال پخش</string>

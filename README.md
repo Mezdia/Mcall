@@ -13,7 +13,7 @@ audio can only be heard through Mcall.
 
 | | |
 |---|---|
-| **Auto recording** | Starts on call pickup, stops on hang-up. A foreground service survives the app being closed, and restarts after reboot. |
+| **Records only during calls** | Nothing runs between calls — no background process, no standing notification, no battery cost. A manifest receiver wakes the app on `PHONE_STATE`, records while the call is up, and the service exits itself on disconnect. |
 | **Encrypted vault** | Each recording is written to `CVAULT2`: PBKDF2-HMAC-SHA256 (600,000 iterations) → AES-128-CBC + HMAC-SHA256 (Fernet layout). The file is **not** a playable MP4, so no other app can open it. |
 | **In-app player** | Decrypts into app-private cache, plays there, then zero-fills and deletes the copy. Full transport: play/pause, scrub, ±10s, previous/next, 1x/1.25x/1.5x/2x, plus background playback with a `MediaSession` (lock-screen and notification controls). |
 | **Password eras** | Changing the password affects only future recordings. Older files keep the password they were made with and still play inside the app, because a short history of previous passwords is retained. |
@@ -24,8 +24,21 @@ audio can only be heard through Mcall.
 
 - Android 10 (API 29) or newer — built and tested on a Galaxy A36 (Android 16, One UI 8.5)
 - JDK 17, Android SDK platform 36 + build-tools 36.1.0, Kotlin compiler
-- Permissions: microphone, call state + call log, notifications, "All files access" (for the vault folder),
-  and unrestricted battery usage so recording survives idle.
+- Permissions: microphone, call state + call log, notifications, "All files access" (for the vault folder)
+
+**Two settings are required for auto-recording to fire, and both live outside the app:**
+
+1. **Settings → Battery → Mcall → Unrestricted.** Android 12+ forbids starting a foreground
+   service from a background broadcast, and disabling battery optimization is one of the few
+   documented exemptions. Without it the call broadcast arrives but the recorder cannot start.
+2. **Do not swipe Mcall away from Recents while armed.** That sets the stopped flag, which
+   suppresses all manifest receivers until the app is opened again.
+
+Android shows a notification **while a recording is actually in progress** — a foreground
+service cannot run without one. It is deliberately quiet (`IMPORTANCE_MIN`, no actions, no
+call category) so it stays eligible for the system's ~10-minute notification deferral, meaning
+a short call typically shows nothing at all. Between calls there is no notification because
+there is no process.
 
 ## Building
 
@@ -51,7 +64,7 @@ src/com/mcall/app/
   crypto/   VaultCrypto (file format), PasswordStore (KeyStore-wrapped passwords)
   data/     Recording, RecordingRepository, AppSettings
   player/   PlaybackEngine (decrypt + MediaPlayer), PlaybackService (MediaSession)
-  service/  CallRecordService (foreground recorder), RecordingController, BootReceiver
+  service/  CallRecordService (records one call, then exits), PhoneStateReceiver, RecordingController
   ui/       MainActivity, SettingsActivity, PlayerActivity, widget/SettingRow
   util/     Format, Insets, OneUiDialog, RecordingLabels
 res/        One UI 8.5 design tokens: values/colors.xml, values/dimens.xml, values/themes.xml

@@ -5,16 +5,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
-import android.database.Cursor
 import android.media.MediaRecorder
-import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.CallLog
-import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
@@ -31,228 +29,222 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.Executors
 
-/** Foreground auto-recorder: OFFHOOK starts, IDLE encrypts (CVAULT2) into /sdcard/Calls. */
+/**
+ * Records exactly one call and then exits.
+ *
+ * Nothing here runs between calls: [PhoneStateReceiver] starts this service when a call
+ * begins, and the first IDLE state after saving tears it down again — which also removes
+ * the notification.
+ */
 class CallRecordService : Service() {
+
     companion object {
         const val TAG = "Mcall"
         const val ACT_SELFTEST = "com.mcall.app.SELFTEST"
-        @Volatile var running = false
+
+        @Volatile
+        var recordingNow = false
+            private set
+
         private const val NOTIF_ID = 41
-        private const val CH = "rec"
+        private const val CHANNEL = "rec2"
+
+        /** Backstop in case the IDLE broadcast never arrives. */
+        private const val IDLE_TIMEOUT_MS = 45_000L
     }
 
     private var tm: TelephonyManager? = null
     private var cb: CallCb? = null
-    private var legacy: PhoneStateListener? = null
-    private val bg = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
+    private val bg = Executors.newSingleThreadExecutor()
 
-    private var rec: MediaRecorder? = null
+    private var recorder: MediaRecorder? = null
     private var recording = false
     private var tmpFile: File? = null
+    private var selfTest = false
+    private var finished = false
 
     private inner class CallCb : TelephonyCallback(), TelephonyCallback.CallStateListener {
-        override fun onCallStateChanged(state: Int) = handleState(state)
+        override fun onCallStateChanged(state: Int) {
+            when (state) {
+                TelephonyManager.CALL_STATE_OFFHOOK -> if (!selfTest) startRecording()
+                TelephonyManager.CALL_STATE_IDLE -> finishAfterCall()
+            }
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
-        if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.w(TAG, "RECORD_AUDIO not granted; service will not start")
+        if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "RECORD_AUDIO not granted; not starting")
             stopSelf()
             return
         }
         val nm = getSystemService(NotificationManager::class.java)
-        if (nm != null && nm.getNotificationChannel(CH) == null) {
-            nm.createNotificationChannel(NotificationChannel(CH, "Mcall", NotificationManager.IMPORTANCE_LOW))
+        if (nm != null && nm.getNotificationChannel(CHANNEL) == null) {
+            nm.createNotificationChannel(
+                NotificationChannel(CHANNEL, getString(R.string.app_name), NotificationManager.IMPORTANCE_MIN)
+            )
         }
-        val n = Notification.Builder(this, CH)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.notif_standby))
-            .setSmallIcon(R.drawable.ic_mic)
-            .setOngoing(true)
-            .build()
-        // Recording from the mic is all this service does. Declaring phoneCall instead
-        // is rejected unless the app holds the dialer role.
-        val types = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        // specialUse rather than microphone: microphone is a while-in-use type and Android
+        // rejects it when the service was woken by a background broadcast. phoneCall would
+        // require the dialer role. No actions and no CALL category, so the notification stays
+        // deferrable and a short call may never display one.
         try {
-            startForeground(NOTIF_ID, n, types)
-        } catch (e: SecurityException) {
-            Log.e(TAG, "startForeground denied", e)
+            startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } catch (e: Exception) {
+            Log.e(TAG, "startForeground rejected", e)
             stopSelf()
             return
         }
-        running = true
+        recordingNow = true
 
         tm = getSystemService(TelephonyManager::class.java)
-        if (Build.VERSION.SDK_INT >= 31) {
-            cb = CallCb()
-            try {
-                tm?.registerTelephonyCallback({ r -> main.post(r) }, cb!!)
-            } catch (e: SecurityException) {
-                Log.e(TAG, "telephony permission missing", e)
-            }
-        } else {
-            legacy = object : PhoneStateListener() {
-                @Deprecated("legacy path")
-                override fun onCallStateChanged(state: Int, num: String?) = handleState(state)
-            }
-            try {
-                @Suppress("DEPRECATION")
-                tm?.listen(legacy, PhoneStateListener.LISTEN_CALL_STATE)
-            } catch (e: SecurityException) {
-                Log.e(TAG, "telephony permission missing", e)
-            }
+        cb = CallCb()
+        runCatching { tm?.registerTelephonyCallback({ r -> main.post(r) }, cb!!) }
+            .onFailure { Log.e(TAG, "telephony callback failed", it) }
+
+        // The callback reports changes only, so the call that woke us has to be read directly.
+        when (runCatching { tm?.callState }.getOrNull() ?: TelephonyManager.CALL_STATE_IDLE) {
+            TelephonyManager.CALL_STATE_OFFHOOK -> startRecording()
+            TelephonyManager.CALL_STATE_RINGING -> Log.i(TAG, "ringing; waiting for answer")
+            else -> Log.w(TAG, "started outside a call")
         }
+        main.postDelayed({ if (!selfTest) finishAfterCall() }, IDLE_TIMEOUT_MS)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACT_SELFTEST) bg.execute { doSelfTest() }
-        return START_STICKY
-    }
-
-    private fun handleState(state: Int) {
-        when (state) {
-            TelephonyManager.CALL_STATE_OFFHOOK ->
-                if (!recording && AppSettings.autoRecord(this)) startRecording()
-            TelephonyManager.CALL_STATE_IDLE -> if (recording) stopAndSave(false)
+        if (intent?.action == ACT_SELFTEST) {
+            selfTest = true
+            main.post { runSelfTest() }
         }
+        // The system must not resurrect this; the receiver starts it per call instead.
+        return START_NOT_STICKY
     }
 
     @Synchronized
     private fun startRecording() {
-        try {
-            if (AppSettings.encryptNew(this) && PasswordStore(this).load() == null) {
-                Log.w(TAG, "encryption on but no password, skip")
-                return
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "password load failed", e)
+        if (recording) return
+        if (AppSettings.encryptNew(this) && runCatching { PasswordStore(this).load() }.getOrNull() == null) {
+            Log.w(TAG, "encryption on but no password set; skipping this call")
+            finishAfterCall()
             return
         }
-        try {
-            tmpFile = File.createTempFile("call_", ".m4a", cacheDir)
-        } catch (e: Exception) {
-            Log.e(TAG, "temp failed", e)
-            return
-        }
-        var r = buildRecorder(tmpFile!!.absolutePath, voiceComm = true)
-            ?: buildRecorder(tmpFile!!.absolutePath, voiceComm = false)
+        val tmp = runCatching { File.createTempFile("call_", ".m4a", cacheDir) }
+            .getOrElse { Log.e(TAG, "temp file failed", it); return }
+        tmpFile = tmp
+        val r = buildRecorder(tmp.absolutePath, true) ?: buildRecorder(tmp.absolutePath, false)
         if (r == null) {
-            tmpFile?.delete()
+            tmp.delete()
+            finishAfterCall()
             return
         }
-        try {
-            r.prepare()
-            r.start()
-        } catch (e: Exception) {
-            try {
-                Thread.sleep(400)
-                r.prepare()
-                r.start()
-            } catch (e2: Exception) {
-                Log.e(TAG, "recorder start failed", e2)
-                try { r.release() } catch (ignored: Exception) { }
-                r = null
-                tmpFile?.delete()
-                return
-            }
+        if (!startOrRetry(r)) {
+            runCatching { r.release() }
+            tmp.delete()
+            tmpFile = null
+            finishAfterCall()
+            return
         }
-        rec = r
+        recorder = r
         recording = true
-        setNotif(getString(R.string.notif_recording))
+        setNotifText(getString(R.string.notif_recording))
     }
 
-    private fun buildRecorder(path: String, voiceComm: Boolean): MediaRecorder? {
-        return try {
-            MediaRecorder().apply {
-                setAudioSource(
-                    if (voiceComm) MediaRecorder.AudioSource.VOICE_COMMUNICATION
-                    else MediaRecorder.AudioSource.MIC
-                )
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setAudioSamplingRate(44100)
-                setAudioEncodingBitRate(128000)
-                setOutputFile(path)
+    private fun startOrRetry(r: MediaRecorder): Boolean {
+        if (runCatching { r.prepare(); r.start() }.isSuccess) return true
+        runCatching { Thread.sleep(400) }
+        return runCatching { r.prepare(); r.start() }.also {
+            if (it.isFailure) Log.e(TAG, "recorder start failed", it.exceptionOrNull())
+        }.isSuccess
+    }
+
+    private fun buildRecorder(path: String, voiceComm: Boolean): MediaRecorder? = try {
+        MediaRecorder().apply {
+            setAudioSource(
+                if (voiceComm) MediaRecorder.AudioSource.VOICE_COMMUNICATION
+                else MediaRecorder.AudioSource.MIC
+            )
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setAudioSamplingRate(44100)
+            setAudioEncodingBitRate(128000)
+            setOutputFile(path)
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "buildRecorder vc=$voiceComm failed", e)
+        null
+    }
+
+    /** Stops the recorder, saves what it captured, then shuts the service down. */
+    @Synchronized
+    private fun finishAfterCall() {
+        if (finished) return
+        finished = true
+        val r = recorder
+        val tmp = tmpFile
+        val wasRecording = recording
+        recorder = null
+        tmpFile = null
+        recording = false
+        bg.execute {
+            if (wasRecording) {
+                runCatching { r?.stop() }
+                    .onFailure { Log.w(TAG, "nothing recorded", it) }
+            }
+            runCatching { r?.release() }
+            if (tmp != null && tmp.exists() && tmp.length() > 0L) save(tmp) else tmp?.delete()
+            main.post { stopSelf() }
+        }
+    }
+
+    private fun save(tmp: File) {
+        try {
+            val raw = readAll(tmp)
+            wipe(tmp)
+            val encrypt = AppSettings.encryptNew(this)
+            val payload = if (encrypt) {
+                val pw = runCatching { PasswordStore(this).load()?.current }.getOrNull()
+                if (pw == null) {
+                    Log.w(TAG, "encryption on but no password; file dropped")
+                    return
+                }
+                VaultCrypto.encrypt(pw, raw)
+            } else raw
+            val vault = vaultDir() ?: return
+            val stem = if (selfTest) "selftest_${timestamp()}" else callStem()
+            val dst = File(vault, stem + if (encrypt) ".m4a.enc" else ".m4a")
+            val part = File(vault, "$stem.tmp")
+            FileOutputStream(part).use { it.write(payload) }
+            if (!part.renameTo(dst)) {
+                Log.e(TAG, "rename failed for ${dst.name}")
+                part.delete()
+            } else {
+                Log.i(TAG, "saved ${dst.absolutePath} (${payload.size}B encrypted=$encrypt)")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "buildRecorder vc=$voiceComm failed", e)
-            null
+            Log.e(TAG, "save failed", e)
         }
     }
 
-    @Synchronized
-    private fun stopAndSave(selfTest: Boolean) {
-        if (!recording) return
-        recording = false
-        val r = rec
-        rec = null
-        val tmp = tmpFile
-        tmpFile = null
-        bg.execute {
-            try { r?.stop() } catch (e: RuntimeException) { Log.w(TAG, "empty recording", e) }
-            try { r?.release() } catch (ignored: Exception) { }
-            setNotif(getString(R.string.notif_standby))
-            if (tmp == null || !tmp.exists() || tmp.length() == 0L) {
-                tmp?.delete()
-                return@execute
-            }
-            try {
-                val raw = readAll(tmp)
-                wipe(tmp)
-                val encrypt = AppSettings.encryptNew(this@CallRecordService)
-                val payload: ByteArray = if (encrypt) {
-                    val pw = PasswordStore(this@CallRecordService).load()?.current
-                    if (pw == null) {
-                        Log.w(TAG, "encryption on but no password, dropped")
-                        return@execute
-                    }
-                    VaultCrypto.encrypt(pw, raw)
-                } else {
-                    raw
-                }
-                val vault = vaultDir() ?: return@execute
-                val stem = if (selfTest) selfTestStem() else callStem()
-                val dst = File(vault, stem + if (encrypt) ".m4a.enc" else ".m4a")
-                val t2 = File(vault, "$stem.tmp")
-                FileOutputStream(t2).use { it.write(payload) }
-                t2.renameTo(dst)
-                Log.i(TAG, "saved ${dst.absolutePath} (${payload.size}B encrypted=$encrypt)")
-            } catch (e: Exception) {
-                Log.e(TAG, "save failed", e)
-            }
-        }
-    }
-
-    private fun doSelfTest() {
-        main.post {
-            if (!recording) {
-                startRecording()
-                main.postDelayed({ stopAndSave(true) }, 5000)
-            }
-        }
-    }
-
-    private fun selfTestStem(): String {
-        val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        return "selftest_$ts"
+    private fun runSelfTest() {
+        startRecording()
+        main.postDelayed({ finishAfterCall() }, 5000)
     }
 
     private fun callStem(): String {
         var dir = "UNK"
         var num = "unknown"
         try {
-            val proj = arrayOf(CallLog.Calls.NUMBER, CallLog.Calls.TYPE, CallLog.Calls.DATE)
-            val cu: Cursor? = contentResolver.query(
-                CallLog.Calls.CONTENT_URI, proj, null, null, CallLog.Calls.DATE + " DESC LIMIT 1"
-            )
-            cu?.use {
+            contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                arrayOf(CallLog.Calls.NUMBER, CallLog.Calls.TYPE),
+                null, null, CallLog.Calls.DATE + " DESC LIMIT 1"
+            )?.use {
                 if (it.moveToFirst()) {
-                    val n = it.getString(0)
-                    if (!n.isNullOrEmpty()) num = n.replace(Regex("[^0-9+]"), "_")
+                    it.getString(0)?.takeIf { s -> s.isNotEmpty() }?.let { s ->
+                        num = s.replace(Regex("[^0-9+]"), "_")
+                    }
                     dir = when (it.getInt(1)) {
                         CallLog.Calls.INCOMING_TYPE -> "IN"
                         CallLog.Calls.OUTGOING_TYPE -> "OUT"
@@ -262,11 +254,13 @@ class CallRecordService : Service() {
                 }
             }
         } catch (e: Exception) {
-            Log.w(TAG, "calllog query failed", e)
+            Log.w(TAG, "call log query failed", e)
         }
-        val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        return "${ts}_${dir}_${num}"
+        return "${timestamp()}_${dir}_${num}"
     }
+
+    private fun timestamp(): String =
+        SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
 
     private fun vaultDir(): File? {
         if (!Environment.isExternalStorageManager()) {
@@ -275,7 +269,7 @@ class CallRecordService : Service() {
         }
         val d = File(Environment.getExternalStorageDirectory(), "Calls")
         if (!d.exists() && !d.mkdirs()) {
-            Log.e(TAG, "mkdir Calls failed")
+            Log.e(TAG, "cannot create Calls folder")
             return null
         }
         return d
@@ -292,7 +286,7 @@ class CallRecordService : Service() {
     }
 
     private fun wipe(f: File) {
-        try {
+        runCatching {
             val len = f.length()
             FileOutputStream(f).use { fo ->
                 val z = ByteArray(8192)
@@ -303,36 +297,44 @@ class CallRecordService : Service() {
                     w += k
                 }
             }
-        } catch (ignored: Exception) { }
+        }
         f.delete()
     }
 
-    private fun setNotif(text: String) {
-        try {
-            val n = Notification.Builder(this, CH)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(text)
-                .setSmallIcon(R.drawable.ic_mic)
-                .setOngoing(true)
-                .build()
-            getSystemService(NotificationManager::class.java)?.notify(NOTIF_ID, n)
-        } catch (ignored: Exception) { }
+    private fun buildNotification(): Notification =
+        Notification.Builder(this, CHANNEL)
+            .setContentTitle(getString(R.string.notif_recording))
+            .setContentText(getString(R.string.app_name))
+            .setSmallIcon(R.drawable.ic_mic)
+            .setOngoing(true)
+            .build()
+
+    private fun setNotifText(text: String) {
+        runCatching {
+            getSystemService(NotificationManager::class.java)?.notify(
+                NOTIF_ID,
+                Notification.Builder(this, CHANNEL)
+                    .setContentTitle(text)
+                    .setContentText(getString(R.string.app_name))
+                    .setSmallIcon(R.drawable.ic_mic)
+                    .setOngoing(true)
+                    .build()
+            )
+        }
     }
 
     override fun onDestroy() {
-        try {
-            if (Build.VERSION.SDK_INT >= 31 && cb != null) tm?.unregisterTelephonyCallback(cb!!)
-            @Suppress("DEPRECATION")
-            if (legacy != null) tm?.listen(legacy, PhoneStateListener.LISTEN_NONE)
-        } catch (ignored: Exception) { }
+        runCatching { cb?.let { tm?.unregisterTelephonyCallback(it) } }
         if (recording) {
-            try { rec?.stop() } catch (ignored: Exception) { }
-            try { rec?.release() } catch (ignored: Exception) { }
+            runCatching { recorder?.stop() }
+            runCatching { recorder?.release() }
             recording = false
         }
-        running = false
+        main.removeCallbacksAndMessages(null)
+        bg.shutdown()
+        recordingNow = false
         super.onDestroy()
     }
 
-    override fun onBind(intent: Intent?) = null
+    override fun onBind(intent: Intent?): IBinder? = null
 }

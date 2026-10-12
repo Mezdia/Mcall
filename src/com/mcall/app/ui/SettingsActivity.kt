@@ -202,9 +202,9 @@ class SettingsActivity : Activity() {
     /** Same wording the main screen shows, so the two screens cannot disagree. */
     private fun serviceStateLabel(): String = getString(
         when {
-            !RecordingController.isEnabled(this) -> R.string.service_stopped
-            CallRecordService.running -> R.string.service_running
-            else -> R.string.service_starting
+            !RecordingController.isEnabled(this) -> R.string.state_off
+            RecordingController.isRecording(this) -> R.string.state_recording
+            else -> R.string.state_armed
         }
     )
 
