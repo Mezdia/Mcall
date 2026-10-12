@@ -51,6 +51,8 @@ class CallRecordService : Service() {
 
         /** Backstop in case the IDLE broadcast never arrives. */
         private const val IDLE_TIMEOUT_MS = 45_000L
+        /** How long a start that never sees a call may live before giving up. */
+        private const val STALE_TIMEOUT_MS = 3_000L
     }
 
     private var tm: TelephonyManager? = null
@@ -63,12 +65,20 @@ class CallRecordService : Service() {
     private var tmpFile: File? = null
     private var selfTest = false
     private var finished = false
+    /** Registering the callback can immediately replay the current state, so IDLE must not
+        be treated as "the call ended" until we have actually seen one. */
+    private var sawCall = false
 
     private inner class CallCb : TelephonyCallback(), TelephonyCallback.CallStateListener {
         override fun onCallStateChanged(state: Int) {
             when (state) {
-                TelephonyManager.CALL_STATE_OFFHOOK -> if (!selfTest) startRecording()
-                TelephonyManager.CALL_STATE_IDLE -> finishAfterCall()
+                TelephonyManager.CALL_STATE_RINGING -> sawCall = true
+                TelephonyManager.CALL_STATE_OFFHOOK -> {
+                    sawCall = true
+                    if (!selfTest) startRecording()
+                }
+                TelephonyManager.CALL_STATE_IDLE ->
+                    if (!selfTest && (sawCall || recording)) finishAfterCall()
             }
         }
     }
@@ -106,11 +116,13 @@ class CallRecordService : Service() {
 
         // The callback reports changes only, so the call that woke us has to be read directly.
         when (runCatching { tm?.callState }.getOrNull() ?: TelephonyManager.CALL_STATE_IDLE) {
-            TelephonyManager.CALL_STATE_OFFHOOK -> startRecording()
-            TelephonyManager.CALL_STATE_RINGING -> Log.i(TAG, "ringing; waiting for answer")
+            TelephonyManager.CALL_STATE_OFFHOOK -> { sawCall = true; startRecording() }
+            TelephonyManager.CALL_STATE_RINGING -> { sawCall = true; Log.i(TAG, "ringing; waiting for answer") }
             else -> Log.w(TAG, "started outside a call")
         }
-        main.postDelayed({ if (!selfTest) finishAfterCall() }, IDLE_TIMEOUT_MS)
+        // A start with no call in progress is stale (selftest sets its flag moments later).
+        main.postDelayed({ if (!selfTest && !sawCall && !recording) finishAfterCall() }, STALE_TIMEOUT_MS)
+        main.postDelayed({ if (!selfTest && (sawCall || recording)) finishAfterCall() }, IDLE_TIMEOUT_MS)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -133,7 +145,12 @@ class CallRecordService : Service() {
         val tmp = runCatching { File.createTempFile("call_", ".m4a", cacheDir) }
             .getOrElse { Log.e(TAG, "temp file failed", it); return }
         tmpFile = tmp
-        val r = buildRecorder(tmp.absolutePath, true) ?: buildRecorder(tmp.absolutePath, false)
+        // A self-test happens outside a call, where VOICE_COMMUNICATION yields pure silence,
+        // so it must use the plain mic to be a meaningful check. A real call uses the call
+        // audio source first and only falls back to the mic.
+        val r = if (selfTest) buildRecorder(tmp.absolutePath, MediaRecorder.AudioSource.MIC)
+                else buildRecorder(tmp.absolutePath, MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+                    ?: buildRecorder(tmp.absolutePath, MediaRecorder.AudioSource.MIC)
         if (r == null) {
             tmp.delete()
             finishAfterCall()
@@ -159,12 +176,9 @@ class CallRecordService : Service() {
         }.isSuccess
     }
 
-    private fun buildRecorder(path: String, voiceComm: Boolean): MediaRecorder? = try {
+    private fun buildRecorder(path: String, source: Int): MediaRecorder? = try {
         MediaRecorder().apply {
-            setAudioSource(
-                if (voiceComm) MediaRecorder.AudioSource.VOICE_COMMUNICATION
-                else MediaRecorder.AudioSource.MIC
-            )
+            setAudioSource(source)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
             setAudioSamplingRate(44100)
@@ -172,7 +186,7 @@ class CallRecordService : Service() {
             setOutputFile(path)
         }
     } catch (e: Exception) {
-        Log.e(TAG, "buildRecorder vc=$voiceComm failed", e)
+        Log.e(TAG, "buildRecorder source=$source failed", e)
         null
     }
 
