@@ -85,6 +85,5 @@
     <string name="player_next">بعدی</string>
     <string name="player_back10">۱۰ ثانیه عقب</string>
     <string name="player_fwd10">۱۰ ثانیه جلو</string>
-    <string name="player_position">%1$s / %2$s</string>
     <string name="player_private_note">صدای رمزگشایی‌شده در حافظه خصوصی برنامه می‌ماند و پس از پخش پاک می‌شود.</string>
 </resources>

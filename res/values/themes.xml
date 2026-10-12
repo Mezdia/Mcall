@@ -24,14 +24,26 @@
         <item name="android:listDivider">@drawable/divider_inset</item>
     </style>
 
-    <!-- Translucent host for One UI bottom sheets / dialogs (26dp radius, blurred scrim). -->
-    <style name="Theme.Mcall.Dialog" parent="Theme.Mcall">
+    <!-- Fullscreen translucent host, only for the bottom-sheet player, which anchors
+         itself to the bottom edge and needs the whole window. -->
+    <style name="Theme.Mcall.Sheet" parent="Theme.Mcall">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.32</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+
+    <!-- Floating One UI dialog: centres itself, scrim behind, our own 26dp surface. -->
+    <style name="Theme.Mcall.Dialog" parent="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.32</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:fontFamily">@font/vazirmatn_regular</item>
     </style>
 
     <!-- Base style namespaces (explicit parents stop the implicit dotted chain). -->

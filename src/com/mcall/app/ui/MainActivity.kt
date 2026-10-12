@@ -221,11 +221,7 @@ class MainActivity : Activity() {
         }
         playerBar.visibility = View.VISIBLE
         miniTitle.text = rec.title(this)
-        miniTime.text = getString(
-            R.string.player_position,
-            Format.duration(st.positionMs),
-            Format.duration(st.durationMs)
-        )
+        miniTime.text = Format.positionRange(st.positionMs, st.durationMs)
         miniPlay.setImageResource(if (st.playing) R.drawable.ic_pause else R.drawable.ic_play)
     }
 

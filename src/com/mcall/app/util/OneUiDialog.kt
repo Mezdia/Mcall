@@ -2,6 +2,7 @@ package com.mcall.app.util
 
 import android.app.Dialog
 import android.content.Context
+import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import com.mcall.app.R
@@ -20,7 +21,10 @@ object OneUiDialog {
         dialog.setContentView(layoutRes)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()
-        dialog.window?.setLayout(dp(ctx, widthDp), WindowManager.LayoutParams.WRAP_CONTENT)
+        dialog.window?.apply {
+            setLayout(dp(ctx, widthDp), WindowManager.LayoutParams.WRAP_CONTENT)
+            setGravity(Gravity.CENTER)
+        }
         configure(dialog)
         return dialog
     }
